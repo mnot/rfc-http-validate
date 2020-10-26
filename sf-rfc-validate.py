@@ -5,7 +5,7 @@ from xml import sax
 
 import http_sfv
 
-__version__ = "0.0.3"
+__version__ = "0.0.4"
 
 typeMap = {
     "http-sf-item": http_sfv.Item,
