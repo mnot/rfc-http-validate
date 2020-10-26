@@ -3,7 +3,7 @@
 from setuptools import setup, find_packages
 
 pkg = "sf-rfc-validate"
-version = "0.0.7"
+version = "0.0.8"
 
 if __name__ == "__main__":
     setup(
@@ -19,7 +19,7 @@ if __name__ == "__main__":
         download_url=f"https://github.com/mnot/{pkg}/tarball/{pkg}-{version}",
         packages=find_packages(),
         scripts=["sf-rfc-validate.py"],
-        requires=["http_sfv"],
+        install_requires=["http_sfv"],
         python_requires=">=3.7",
         classifiers=[
             "Development Status :: 4 - Beta",
