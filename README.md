@@ -18,6 +18,8 @@ Foo: one,
 
 ... will be validated as a Structured Field List with the value `bar; baz, one, two`.
 
+Note that in your XML, there **must not be any whitespace** at the start of lines, unless they're continuation of previous lines (folding, as seen above).
+
 
 ## Installation
 

@@ -5,7 +5,7 @@ from xml import sax
 
 import http_sfv
 
-__version__ = "0.0.5"
+__version__ = "0.0.6"
 
 typeMap = {
     "http-sf-item": http_sfv.Item,
@@ -44,7 +44,12 @@ class SfValidator(sax.ContentHandler):
         if self.listening:
             header_type = typeMap.get(self.type)
             if header_type:
-                headers = combine_headers(self.content)
+                try:
+                    headers = combine_headers(self.content)
+                except ValueError as why:
+                    print(f"* ERROR - {why}")
+                    self.errors += 1
+                    return
                 for hname, hvalue in headers.items():
                     try:
                         print(f"  checking {hname}: {hvalue}")
@@ -69,19 +74,24 @@ def combine_headers(content):
     headers = {}
     prev_name = None
     for line in content.split("\n"):
-        line = line.strip()
         if not line:
             continue
-        if ":" in line:
+        if line[0] == " ":
+            if prev_name:
+                headers[prev_name] += f" {line.strip()}"
+                continue
+            raise ValueError("First line starts with whitespace")
+        try:
             name, value = line.split(":", 1)
-            name = name.lower()
-            if name in headers:
-                headers[name] += f", {value}"
-            else:
-                headers[name] = value
-            prev_name = name
-        elif prev_name:
-            headers[prev_name] += f", {line}"
+        except ValueError:
+            raise ValueError("Non-field line in content")
+        name = name.strip().lower()
+        value = value.strip()
+        if name in headers:
+            headers[name] += f", {value}"
+        else:
+            headers[name] = value
+        prev_name = name
     return headers
 
 
