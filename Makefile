@@ -2,7 +2,7 @@ PYTHON=python3
 PYTHONPATH=./
 
 name=http_sfv
-version=`python3 -c 'import importlib;a=importlib.import_module("sf-rfc-validate");print(a.__version__)'`
+version=`python3 -c 'import importlib;a=importlib.import_module("setup");print(a.version)'`
 
 .PHONY: version
 version:
