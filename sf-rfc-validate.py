@@ -5,7 +5,7 @@ from xml import sax
 
 import http_sfv
 
-__version__ = "0.0.4"
+__version__ = "0.0.5"
 
 typeMap = {
     "http-sf-item": http_sfv.Item,
@@ -36,7 +36,7 @@ class SfValidator(sax.ContentHandler):
         self.errors = 0
 
     def startElement(self, name, attrs):
-        if name == "sourcecode" and "type" in attrs.keys():
+        if name in ["sourcecode", "artwork"] and "type" in attrs.keys():
             self.listening = True
             self.type = attrs["type"]
 

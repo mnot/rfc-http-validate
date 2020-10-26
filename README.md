@@ -2,7 +2,7 @@
 
 This is a simple script to validate [Structured Fields](https://httpwg.org/http-extensions/draft-ietf-httpbis-header-structure.html) in [xml2rfcv3](https://tools.ietf.org/html/rfc7991) documents.
 
-It examines all `sourcecode` elements; when one has a `type` of `http-sf-item`, `http-sf-list` or `http-sf-dict`, it validates the contents.
+It examines all `sourcecode` and `artwork` elements; when one has a `type` of `http-sf-item`, `http-sf-list` or `http-sf-dict`, it validates the contents.
 
 When validating, it assumes that the content is a HTTP field section; that is, one or more lines, each in the format `field_name: field_value`. Line folding is supported, so that long lines can be formatted appropriately. Multiple lines with the same name will be combined into one value. Then, each value is parsed as the Structured Field type indicated by the `type` attribute.
 
