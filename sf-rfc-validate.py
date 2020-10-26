@@ -15,6 +15,18 @@ typeMap = {
 }
 
 
+def validate(filenames):
+    errors = 0
+    for filename in filenames:
+        print(f"* Validating {filename}")
+        handler = SfValidator()
+        sax.parse(filename, handler)
+        errors += handler.errors
+        print()
+    if errors > 0:
+        sys.exit(1)
+
+
 class SfValidator(sax.ContentHandler):
     def __init__(self, *args, **kw):
         sax.ContentHandler.__init__(self, *args, **kw)
@@ -35,13 +47,13 @@ class SfValidator(sax.ContentHandler):
                 headers = combine_headers(self.content)
                 for hname, hvalue in headers.items():
                     try:
-                        print(f"Validating {hname}: {hvalue}")
+                        print(f"  checking {hname}: {hvalue}")
                         header_type().parse(hvalue.encode("ascii"))
                     except ValueError as why:
                         print(f"* ERROR - {why}")
                         self.errors += 1
             else:
-                print(f"Skipping {self.type}")
+                print(f"  skipping {self.type}")
             self.listening = False
             self.content = ""
 
@@ -51,8 +63,6 @@ class SfValidator(sax.ContentHandler):
 
     def endDocument(self):
         print(f"* {self.errors} errors.")
-        if self.errors:
-            sys.exit(1)
 
 
 def combine_headers(content):
@@ -76,5 +86,4 @@ def combine_headers(content):
 
 
 if __name__ == "__main__":
-    handler = SfValidator()
-    sax.parse(sys.argv[1], handler)
+    validate(sys.argv[1:])
