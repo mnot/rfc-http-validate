@@ -5,7 +5,7 @@ from xml import sax
 
 import http_sfv
 
-__version__ = "0.0.1"
+__version__ = "0.0.2"
 
 typeMap = {
     "http-sf-item": http_sfv.Item,
@@ -13,6 +13,7 @@ typeMap = {
     "http-sf-dict": http_sfv.Dictionary,
     "http-sf-invalid": None,
 }
+
 
 class SfValidator(sax.ContentHandler):
     def __init__(self, *args, **kw):
@@ -31,16 +32,14 @@ class SfValidator(sax.ContentHandler):
         if self.listening:
             header_type = typeMap.get(self.type)
             if header_type:
-                for line in self.content.split("\n"):
-                    line = line.strip().encode("ascii")
-                    if b":" in line:
-                        name, value = line.split(b":", 1)
-                        try:
-                            print(f"Validating {line.decode('ascii')}")
-                            header_type().parse(value)
-                        except ValueError as why:
-                            print(f"* ERROR - {why}")
-                            self.errors += 1
+                headers = combine_headers(self.content)
+                for hname, hvalue in headers.items():
+                    try:
+                        print(f"Validating {hname}: {hvalue}")
+                        header_type().parse(hvalue.encode("ascii"))
+                    except ValueError as why:
+                        print(f"* ERROR - {why}")
+                        self.errors += 1
             else:
                 print(f"Skipping {self.type}")
             self.listening = False
@@ -54,6 +53,26 @@ class SfValidator(sax.ContentHandler):
         print(f"* {self.errors} errors.")
         if self.errors:
             sys.exit(1)
+
+
+def combine_headers(content):
+    headers = {}
+    prev_name = None
+    for line in content.split("\n"):
+        line = line.strip()
+        if not line:
+            continue
+        if ":" in line:
+            name, value = line.split(":", 1)
+            name = name.lower()
+            if name in headers:
+                headers[name] += f", {value}"
+            else:
+                headers[name] = value
+            prev_name = name
+        elif prev_name:
+            headers[prev_name] += f", {line}"
+    return headers
 
 
 if __name__ == "__main__":

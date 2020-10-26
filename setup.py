@@ -2,7 +2,8 @@
 
 import importlib
 from setuptools import setup, find_packages
-module = importlib.import_module('sf-rfc-validate')
+
+module = importlib.import_module("sf-rfc-validate")
 
 pkg = "sf-rfc-validate"
 version = module.__version__
