@@ -36,7 +36,7 @@ class SfValidator(sax.ContentHandler):
 
     def endElement(self, name):
         if self.listening:
-            if self.type in ["http-structured-headers"]:
+            if self.type in ["http-structured-fields"]:
                 try:
                     headers = combine_headers(self.content)
                 except ValueError as why:

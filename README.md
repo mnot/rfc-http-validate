@@ -9,7 +9,7 @@ This script examines all `sourcecode` and `artwork` elements; when one has a `ty
 lines, each in the format `field_name: field_value`. Line folding is supported, so that long lines
 can be formatted appropriately. Multiple lines with the same name will be combined into one value.
 
-Then, each value is parsed as a Structured Field type, if the header name is recognised as being a structured field.
+Then, each value is parsed as a Structured Field type, if the field name is recognised as being a structured field.
 
 For example,
 
