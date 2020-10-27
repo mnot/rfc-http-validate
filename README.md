@@ -6,7 +6,7 @@ This is a simple script to validate HTTP messages (possibly containing [Structur
 ## HTTP Messages in RFC XML
 
 This script examines all `sourcecode` and `artwork` elements; when one has a `type` of
-`http-message`, it assumes that the content:
+`http-message`, it checks that the content:
 
 * Optionally, starts with a valid HTTP/1/1 request or status line
 * Has one or more HTTP/1.1 header field lines, possibly with line folding (so that long lines can be formatted within the constraints of the RFC format)
