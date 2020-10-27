@@ -7,15 +7,53 @@ from xml import sax
 
 import http_sfv
 
+REGISTERED_METHODS = [
+    "ACL",
+    "BASELINE-CONTROL",
+    "BIND",
+    "CHECKIN",
+    "CHECKOUT",
+    "CONNECT" "COPY",
+    "DELETE",
+    "GET",
+    "HEAD",
+    "LABEL",
+    "LINK",
+    "LOCK",
+    "MERGE",
+    "MKACTIVITY",
+    "MKCALENDAR",
+    "MKREDIRECTREF",
+    "MKWORKSPACE",
+    "MOVE",
+    "OPTIONS",
+    "ORDERPATCH",
+    "PATCH",
+    "POST",
+    "PRI",
+    "PROPFIND",
+    "PUT",
+    "REBIND",
+    "REPORT",
+    "SEARCH",
+    "TRACE",
+    "UNBIND",
+    "UNCHECKOUT",
+    "UNLINK",
+    "UNLOCK",
+    "UPDATE",
+    "UPDATEREDIRECTREF",
+    "VERSION-CONTROL",
+]
+
 
 def validate(filehandles, typemap):
     errors = 0
     for fh in filehandles:
-        print(f"* Validating {fh.name}")
         handler = SfValidator(typemap)
+        handler.filename = fh.name
         sax.parse(fh, handler)
         errors += handler.errors
-        print()
     if errors > 0:
         sys.exit(1)
 
@@ -36,60 +74,125 @@ class SfValidator(sax.ContentHandler):
 
     def endElement(self, name):
         if self.listening:
-            if self.type in ["http-structured-fields"]:
+            self.listening = False
+            if self.type in ["http-message"]:
+                lines = self.content.strip("\n").split("\n")
+                if len(lines) == 0:
+                    self.validationError("Empty http-message")
+                    return
+                lines = self.check_start_line(lines)
                 try:
-                    headers = combine_headers(self.content)
+                    headers = self.combine_headers(lines)
                 except ValueError as why:
-                    print(f"  ERROR - {why}")
-                    self.errors += 1
+                    self.validationError(why)
                     return
                 for hname, hvalue in headers.items():
                     header_type = self.typemap.get(hname)
                     if header_type:
                         try:
-                            print(f"  validating {hname}: {hvalue}")
+                            self.validationStatus(
+                                f"validating field value {hname}: {hvalue}"
+                            )
                             header_type().parse(hvalue.encode("ascii"))
                         except ValueError as why:
-                            print(f"  ERROR - {why}")
-                            self.errors += 1
+                            self.validationError(why)
                     else:
-                        print(f"  skipping {hname} field (no type information)")
+                        self.validationStatus(
+                            f"skipping field value {hname} (no type information)"
+                        )
             else:
-                print(f"  skipping {self.type} section")
-            self.listening = False
-            self.content = ""
+                self.validationStatus(f"skipping section {self.type}")
+        self.content = ""
 
     def characters(self, content):
         if self.listening:
             self.content += content
 
+    def startDocument(self):
+        print(f"* Validating {self.filename}")
+
     def endDocument(self):
         print(f"* {self.errors} errors.")
+        print()
 
+    def validationStatus(self, message):
+        print(f"  {message}")
 
-def combine_headers(content):
-    headers = {}
-    prev_name = None
-    for line in content.split("\n"):
-        if not line:
-            continue
-        if line[0] == " ":
-            if prev_name:
-                headers[prev_name] += f" {line.strip()}"
-                continue
-            raise ValueError("First line starts with whitespace")
-        try:
-            name, value = line.split(":", 1)
-        except ValueError:
-            raise ValueError("Non-field line in content")
-        name = name.strip().lower()
-        value = value.strip()
-        if name in headers:
-            headers[name] += f", {value}"
+    def validationError(self, message):
+        print(f"  ERROR: {message}")
+        self.errors += 1
+
+    def check_start_line(self, lines):
+        start_line = lines[0]
+        parts = start_line.split(" ")
+        if parts[0][-1] == ":":
+            return lines  # it must be a header line
+        if "http" in parts[0].lower():
+            self.validationStatus(f"validating status line {start_line}")
+            if parts[0] != "HTTP/1.1":
+                self.validationError(
+                    f"Status line '{start_line}' doesn't start with 'HTTP/1.1'"
+                )
+            elif len(parts) < 3:
+                self.validationError(
+                    f"Status line '{start_line}' isn't 'HTTP/1.1 [status_code] [status_phrase]'"
+                )
+            else:
+                if not parts[1].isdigit():
+                    self.validationError(f"Status code {parts[1]} is non-numeric")
+                elif not 99 < int(parts[1]) < 600:
+                    self.validationError(f"Status code {parts[1]} is out of range")
         else:
-            headers[name] = value
-        prev_name = name
-    return headers
+            self.validationStatus(f"validating request line {start_line}")
+            if len(parts) < 3:
+                self.validationError("Request line isn't '[method] [url] HTTP/1.1'")
+            else:
+                if parts[0] not in REGISTERED_METHODS:
+                    self.validationError(f"Method '{parts[0]} not recognised")
+                if parts[2] != "HTTP/1.1":
+                    self.validationError(
+                        f"Request line '{start_line}' doesn't end with 'HTTP/1.1'"
+                    )
+                if len(parts) > 3:
+                    self.validationError(f"Request line '{start_line}' has extra text")
+        lines.pop(0)
+        return lines
+
+    def combine_headers(self, lines):
+        headers = {}
+        prev_name = None
+        in_body = False
+        for line in lines:
+            if len(line.strip()) == 0:
+                if not headers:  # a blank line before seeing any headers
+                    raise ValueError(f"Body without headers")
+                in_body = True
+                self.validationStatus(f"ignoring HTTP message body")
+            if in_body:
+                continue
+            if line[0] == " ":
+                if prev_name:
+                    headers[prev_name] += f" {line.strip()}"
+                    continue
+                raise ValueError(
+                    f"First header field line '{line}' starts with whitespace"
+                )
+            try:
+                name, value = line.split(":", 1)
+            except ValueError:
+                raise ValueError(f"Non-field line '{line}' in content")
+            if name != name.rstrip():
+                self.validationError(
+                    f"Whitespace between field name {name.strip()} and colon"
+                )
+            name = name.lower()
+            value = value.strip()
+            if name in headers:
+                headers[name] += f", {value}"
+            else:
+                headers[name] = value
+            prev_name = name
+        return headers
 
 
 def main():

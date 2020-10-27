@@ -2,19 +2,24 @@
 
 This is a simple script to validate [Structured Fields](https://httpwg.org/http-extensions/draft-ietf-httpbis-header-structure.html) in [xml2rfcv3](https://tools.ietf.org/html/rfc7991) documents.
 
-## Structured Fields in RFC XML
+
+## HTTP Messages in RFC XML
 
 This script examines all `sourcecode` and `artwork` elements; when one has a `type` of
-`http-structured-fields`, it assumes that the content is a HTTP field section; that is, one or more
-lines, each in the format `field_name: field_value`. Line folding is supported, so that long lines
-can be formatted appropriately. Multiple lines with the same name will be combined into one value.
+`http-message`, it assumes that the content:
 
-Then, each value is parsed as a Structured Field type, if the field name is recognised as being a structured field.
+* Optionally, starts with a valid HTTP/1/1 request or status line
+* Has one or more HTTP/1.1 header field lines, possibly with line folding (so that long lines can be formatted within the constraints of the RFC format)
+* Optionally, has a response body, separated from the header fields with a single empty line
+
+The start line will be checked that the method or status code is reasonable, and that the version identifier `HTTP/1.1` is correct. The URL in requests will not be validated, however.
+
+Header fields will be validated for general syntax. Additionally, header field names that are configured with structured type information (see below) will be validated according to that type.
 
 For example,
 
 ~~~ xml
-<sourcecode type="http-structured-fields">
+<sourcecode type="http-message">
 Foo: bar; baz
 Foo: one,
      two
@@ -23,12 +28,14 @@ Foo: one,
 
 ... will be validated as having a single field, `foo`, with the value `bar; baz, one, two`.
 
+The body, if present, is currently ignored (i.e., the `Content-Length` is not checked).
+
 Note that in your XML, there **must not be any whitespace** at the start of lines, unless they're continuation of previous lines (folding, as seen above).
 
 
-## Configuring Structured Type Information
+## Configuring Structured Type Information for Fields
 
-You can pass type information (i.e., List, Dictionary, or Item) for field names on the command line, or in a configuration file.
+To validated structured fields, you can pass type information (i.e., List, Dictionary, or Item) for field names on the command line, or in a configuration file.
 
 To pass a type on the command line, use the `--list`, `--dictionary` or `--item` arguments as appropriate, followed by the field name. For example:
 
