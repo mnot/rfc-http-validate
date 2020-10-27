@@ -3,7 +3,7 @@
 from setuptools import setup, find_packages
 
 pkg = "rfc-http-validate"
-version = "0.1.0"
+version = "0.1.1"
 
 if __name__ == "__main__":
     setup(
@@ -18,7 +18,7 @@ if __name__ == "__main__":
         url=f"https://github.com/mnot/{pkg}/",
         download_url=f"https://github.com/mnot/{pkg}/tarball/{pkg}-{version}",
         packages=find_packages(),
-        scripts=["sf-rfc-validate.py"],
+        scripts=["rfc-http-validate.py"],
         install_requires=["http_sfv"],
         python_requires=">=3.7",
         classifiers=[
