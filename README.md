@@ -1,4 +1,4 @@
-# sf-rfc-validate
+# rfc-http-validate
 
 This is a simple script to validate HTTP messages (possibly containing [Structured Fields](https://httpwg.org/http-extensions/draft-ietf-httpbis-header-structure.html)) in [xml2rfcv3](https://tools.ietf.org/html/rfc7991) documents.
 
@@ -39,7 +39,7 @@ To validated structured fields, you can pass type information (i.e., List, Dicti
 
 To pass a type on the command line, use the `--list`, `--dictionary` or `--item` arguments as appropriate, followed by the field name. For example:
 
-> sf-rfc-validate.py --list Foo --list Bar --item Baz my_draft_.xml
+> rfc-http-validate.py --list Foo --list Bar --item Baz my_draft_.xml
 
 Here, `Foo` and `Bar` will be validated as Structured Lists, while `Baz` will be validated as a Structured Item.
 
@@ -55,12 +55,12 @@ Alternatively, you can collect this information in a JSON file, with the top-lev
 
 ... and passed to the script like this:
 
-> sf-rfc-validate.py --map sf.json my_draft.xml
+> rfc-http-validate.py --map sf.json my_draft.xml
 
 
 ## Installation
 
 The script requires Python 3, and can be installed with pip:
 
-> pip3 install sf-rfc-validate
+> pip3 install rfc-http-validatee
 

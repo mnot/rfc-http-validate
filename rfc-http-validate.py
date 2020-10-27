@@ -50,7 +50,7 @@ REGISTERED_METHODS = [
 def validate(filehandles, typemap):
     errors = 0
     for fh in filehandles:
-        handler = SfValidator(typemap)
+        handler = RfcHttpValidator(typemap)
         handler.filename = fh.name
         sax.parse(fh, handler)
         errors += handler.errors
@@ -58,7 +58,7 @@ def validate(filehandles, typemap):
         sys.exit(1)
 
 
-class SfValidator(sax.ContentHandler):
+class RfcHttpValidator(sax.ContentHandler):
     def __init__(self, typemap):
         sax.ContentHandler.__init__(self)
         self.typemap = typemap
@@ -197,7 +197,7 @@ class SfValidator(sax.ContentHandler):
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Validate HTTP Structured Fields in XML2RFC documents"
+        description="Validate HTTP messages in XML2RFC documents"
     )
     parser.add_argument(
         "-m",

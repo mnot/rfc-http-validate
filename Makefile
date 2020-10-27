@@ -1,7 +1,7 @@
 PYTHON=python3
 PYTHONPATH=./
 
-name=http_sfv
+name=rfc-http-validate
 version=`python3 -c 'import importlib;a=importlib.import_module("setup");print(a.version)'`
 
 .PHONY: version
@@ -10,7 +10,7 @@ version:
 
 .PHONY: lint
 lint:
-	PYTHONPATH=$(PYTHONPATH) $(PYTHON) -m pylint sf-rfc-validate.py
+	PYTHONPATH=$(PYTHONPATH) $(PYTHON) -m pylint $(name).py
 
 .PHONY: black
 black:

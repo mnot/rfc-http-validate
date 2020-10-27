@@ -2,14 +2,14 @@
 
 from setuptools import setup, find_packages
 
-pkg = "sf-rfc-validate"
-version = "0.0.8"
+pkg = "rfc-http-validate"
+version = "0.1.0"
 
 if __name__ == "__main__":
     setup(
         name=pkg,
         version=version,
-        description="Validate HTTP Structured Fields in XML2RFC documents",
+        description="Validate HTTP messages in XML2RFC documents",
         long_description=open("README.md").read(),
         long_description_content_type="text/markdown",
         author="Mark Nottingham",
