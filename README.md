@@ -62,5 +62,5 @@ Alternatively, you can collect this information in a JSON file, with the top-lev
 
 The script requires Python 3, and can be installed with pip:
 
-> pip3 install rfc-http-validatee
+> pip3 install rfc-http-validate
 
