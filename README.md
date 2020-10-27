@@ -1,6 +1,6 @@
 # sf-rfc-validate
 
-This is a simple script to validate [Structured Fields](https://httpwg.org/http-extensions/draft-ietf-httpbis-header-structure.html) in [xml2rfcv3](https://tools.ietf.org/html/rfc7991) documents.
+This is a simple script to validate HTTP messages (possibly containing [Structured Fields](https://httpwg.org/http-extensions/draft-ietf-httpbis-header-structure.html)) in [xml2rfcv3](https://tools.ietf.org/html/rfc7991) documents.
 
 
 ## HTTP Messages in RFC XML
