@@ -13,7 +13,8 @@ REGISTERED_METHODS = [
     "BIND",
     "CHECKIN",
     "CHECKOUT",
-    "CONNECT" "COPY",
+    "CONNECT",
+    "COPY",
     "DELETE",
     "GET",
     "HEAD",
@@ -148,7 +149,7 @@ class RfcHttpValidator(sax.ContentHandler):
                 self.validationError("Request line isn't '[method] [url] HTTP/1.1'")
             else:
                 if parts[0] not in REGISTERED_METHODS:
-                    self.validationError(f"Method '{parts[0]} not recognised")
+                    self.validationError(f"Method '{parts[0]}' not recognised")
                 if parts[2] != "HTTP/1.1":
                     self.validationError(
                         f"Request line '{start_line}' doesn't end with 'HTTP/1.1'"
