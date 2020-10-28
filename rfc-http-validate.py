@@ -81,6 +81,7 @@ class RfcHttpValidator(sax.ContentHandler):
                 if len(lines) == 0:
                     self.validationError("Empty http-message")
                     return
+                lines = self.combine_8792(lines)
                 lines = self.check_start_line(lines)
                 try:
                     headers = self.combine_headers(lines)
@@ -158,6 +159,26 @@ class RfcHttpValidator(sax.ContentHandler):
                     self.validationError(f"Request line '{start_line}' has extra text")
         lines.pop(0)
         return lines
+
+    def combine_8792(self, lines):
+        if not "NOTE: '\\' line wrapping per RFC 8792" in lines[0]:
+            return lines
+        else:
+            lines = lines[2:]
+        output = []
+        continuation = False
+        for line in lines:
+            prev_continuation = continuation
+            if line.endswith("\\"):
+                continuation = True
+                line = line[:-1]
+            else:
+                continuation = False
+            if prev_continuation:
+                output[-1] += line.lstrip()
+            else:
+                output.append(line)
+        return output
 
     def combine_headers(self, lines):
         headers = {}

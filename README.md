@@ -32,6 +32,21 @@ The body, if present, is currently ignored (i.e., the `Content-Length` is not ch
 
 Note that in your XML, there **must not be any whitespace** at the start of lines, unless they're continuation of previous lines (folding, as seen above).
 
+If an RFC8792 `\\` wrapping header is present, lines will be unwrapped first (i.e., before unfolding, as per above). This is useful for long lines with binary content (which cannot contain whitespace); e.g.,
+
+~~~ xml
+<sourcecode type="http-message">
+# NOTE: '\' line wrapping per RFC 8792
+
+Signature: sig1=:K2qGT5srn2OGbOIDzQ6kYT+ruaycnDAAUpKv+ePFfD0RAxn/1BUe\
+    Zx/Kdrq32DrfakQ6bPsvB9aqZqognNT6be4olHROIkeV879RrsrObury8L9SCEibe\
+    oHyqU/yCjphSmEdd7WD+zrchK57quskKwRefy2iEC5S2uAH0EPyOZKWlvbKmKu5q4\
+    CaB8X/I5/+HLZLGvDiezqi6/7p2Gngf5hwZ0lSdy39vyNMaaAT0tKo6nuVw0S1MVg\
+    1Q7MpWYZs0soHjttq0uLIA3DIbQfLiIvK6/l0BdWTU7+2uQj7lBkQAsFZHoA96ZZg\
+    FquQrXRlmYOh+Hx5D9fJkXcXe5tmAg==:
+</sourcecode>
+~~~
+
 
 ## Configuring Structured Type Information for Fields
 
