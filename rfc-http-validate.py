@@ -47,6 +47,14 @@ REGISTERED_METHODS = [
     "VERSION-CONTROL",
 ]
 
+verbose = True
+
+
+def status(*args):
+    global verbose
+    if verbose:
+        print(*args)
+
 
 def validate(filehandles, typemap):
     errors = 0
@@ -111,14 +119,14 @@ class RfcHttpValidator(sax.ContentHandler):
             self.content += content
 
     def startDocument(self):
-        print(f"* Validating {self.filename}")
+        status(f"* Validating {self.filename}")
 
     def endDocument(self):
-        print(f"* {self.errors} errors.")
-        print()
+        status(f"* {self.errors} errors.")
+        status()
 
     def validationStatus(self, message):
-        print(f"  {message}")
+        status(f"  {message}")
 
     def validationError(self, message):
         print(f"  ERROR: {message}")
@@ -253,6 +261,12 @@ def main():
         help="field name to consider as a Structured Dictionary",
     )
     parser.add_argument(
+        "-q",
+        "--quiet",
+        action="store_true",
+        help="suppress status messages",
+    )
+    parser.add_argument(
         "file", type=argparse.FileType("r"), nargs="+", help="an XML file to validate"
     )
 
@@ -284,6 +298,9 @@ def main():
         typemap[_list.lower()] = http_sfv.List
     for _dict in args.dict:
         typemap[_dict.lower()] = http_sfv.Dictionary
+    if args.quiet:
+        global verbose
+        verbose = False
 
     validate(args.file, typemap)
 
