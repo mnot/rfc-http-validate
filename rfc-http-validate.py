@@ -126,6 +126,9 @@ class RfcHttpValidator(sax.ContentHandler):
 
     def check_start_line(self, lines):
         start_line = lines[0]
+        if start_line[0] == " ":
+            self.validationError(f"Start line starts with whitespace: '{start_line}'")
+            return lines
         parts = start_line.split(" ")
         if parts[0][-1] == ":":
             return lines  # it must be a header line
