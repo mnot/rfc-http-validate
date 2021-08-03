@@ -129,7 +129,7 @@ class RfcHttpValidator(sax.ContentHandler):
         status(f"  {message}")
 
     def validationError(self, message):
-        print(f"  ERROR: {message}")
+        print(f"  ERROR at {self.filename}:{self._locator.getLineNumber()}: {message}")
         self.errors += 1
 
     def check_start_line(self, lines):
@@ -264,10 +264,7 @@ def main():
         help="field name to consider as a Structured Dictionary",
     )
     parser.add_argument(
-        "-q",
-        "--quiet",
-        action="store_true",
-        help="suppress status messages",
+        "-q", "--quiet", action="store_true", help="suppress status messages",
     )
     parser.add_argument(
         "file", type=argparse.FileType("r"), nargs="+", help="an XML file to validate"
