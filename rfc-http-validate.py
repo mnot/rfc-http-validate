@@ -129,8 +129,11 @@ class RfcHttpValidator(sax.ContentHandler):
         status(f"  {message}")
 
     def validationError(self, message):
-        print(f"  ERROR at {self.filename}:{self._locator.getLineNumber()}: {message}")
+        print(f"  ERROR at {self.location()}: {message}")
         self.errors += 1
+
+    def location(self):
+        return f"{self.filename}:{self._locator.getLineNumber()}"
 
     def check_start_line(self, lines):
         start_line = lines[0]
@@ -141,7 +144,9 @@ class RfcHttpValidator(sax.ContentHandler):
         if parts[0][-1] == ":":
             return lines  # it must be a header line
         if "http" in parts[0].lower():
-            self.validationStatus(f"validating status line {start_line}")
+            self.validationStatus(
+                f"{self.location()}: validating status line {start_line}"
+            )
             if parts[0] != "HTTP/1.1":
                 self.validationError(
                     f"Status line '{start_line}' doesn't start with 'HTTP/1.1'"
@@ -156,7 +161,9 @@ class RfcHttpValidator(sax.ContentHandler):
                 elif not 99 < int(parts[1]) < 600:
                     self.validationError(f"Status code {parts[1]} is out of range")
         else:
-            self.validationStatus(f"validating request line {start_line}")
+            self.validationStatus(
+                f"{self.location()}: validating request line {start_line}"
+            )
             if len(parts) < 3:
                 self.validationError("Request line isn't '[method] [url] HTTP/1.1'")
             else:
