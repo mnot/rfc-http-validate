@@ -3,7 +3,7 @@
 from setuptools import setup, find_packages
 
 pkg = "rfc-http-validate"
-version = "0.1.3"
+version = "0.1.4"
 
 if __name__ == "__main__":
     setup(
