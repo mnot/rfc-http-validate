@@ -34,6 +34,7 @@ REGISTERED_METHODS = [
     "PRI",
     "PROPFIND",
     "PUT",
+    "QUERY",
     "REBIND",
     "REPORT",
     "SEARCH",
