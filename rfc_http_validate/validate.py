@@ -66,7 +66,7 @@ class RfcHttpValidator(sax.ContentHandler):
         self.status(f"  {message}")
 
     def validationError(self, message):
-        print(f"  ERROR at {self.location()}: {message}")
+        self.status(f"  ERROR at {self.location()}: {message}")
         self.errors += 1
 
     def location(self):
