@@ -18,10 +18,6 @@ class ValidatorCLI:
         self.typemap = self.load_typemap()
         self.run()
 
-    def status(self, *args):
-        if not self.args.quiet:
-            print(*args)
-
     def run(self):
         errors = 0
         for fh in self.args.file:
@@ -31,6 +27,10 @@ class ValidatorCLI:
             errors += handler.errors
         if errors > 0:
             sys.exit(1)
+
+    def status(self, *args):
+        if not self.args.quiet:
+            print(*args)
 
     def parse_args(self):
         parser = argparse.ArgumentParser(
