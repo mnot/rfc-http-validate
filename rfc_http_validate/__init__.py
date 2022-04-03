@@ -7,49 +7,10 @@ from xml import sax
 
 import http_sfv
 
+from .methods import REGISTERED_METHODS
+
+
 __version__ = "0.1.5"
-
-REGISTERED_METHODS = [
-    "ACL",
-    "BASELINE-CONTROL",
-    "BIND",
-    "CHECKIN",
-    "CHECKOUT",
-    "CONNECT",
-    "COPY",
-    "DELETE",
-    "GET",
-    "HEAD",
-    "LABEL",
-    "LINK",
-    "LOCK",
-    "MERGE",
-    "MKACTIVITY",
-    "MKCALENDAR",
-    "MKREDIRECTREF",
-    "MKWORKSPACE",
-    "MOVE",
-    "OPTIONS",
-    "ORDERPATCH",
-    "PATCH",
-    "POST",
-    "PRI",
-    "PROPFIND",
-    "PUT",
-    "QUERY",
-    "REBIND",
-    "REPORT",
-    "SEARCH",
-    "TRACE",
-    "UNBIND",
-    "UNCHECKOUT",
-    "UNLINK",
-    "UNLOCK",
-    "UPDATE",
-    "UPDATEREDIRECTREF",
-    "VERSION-CONTROL",
-]
-
 verbose = True
 
 
