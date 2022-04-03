@@ -219,9 +219,9 @@ class RfcHttpValidator(sax.ContentHandler):
                 name, value = line.split(":", 1)
             except ValueError:
                 raise ValueError(f"Non-field line '{line}' in content")
-            if name != name.rstrip():
+            if " " in name:
                 self.validationError(
-                    f"Whitespace between field name {name.strip()} and colon"
+                    f"Whitespace in field name '{name}'"
                 )
             name = name.lower()
             value = value.strip()
