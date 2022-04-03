@@ -1,11 +1,12 @@
-from xml import sax
+from typing import Callable, Dict, List
+from xml.sax.handler import ContentHandler
 
 from .methods import REGISTERED_METHODS
 
 
-class RfcHttpValidator(sax.ContentHandler):
-    def __init__(self, typemap, status):
-        sax.ContentHandler.__init__(self)
+class RfcHttpValidator(ContentHandler):
+    def __init__(self, typemap: Dict[str, Callable], status: Callable[[str], None]):
+        ContentHandler.__init__(self)
         self.typemap = typemap
         self.status = status
         self.listening = False
@@ -62,17 +63,17 @@ class RfcHttpValidator(sax.ContentHandler):
         self.status(f"* {self.errors} errors.")
         self.status()
 
-    def validationStatus(self, message):
+    def validationStatus(self, message: str) -> None:
         self.status(f"  {message}")
 
-    def validationError(self, message):
+    def validationError(self, message: str) -> None:
         self.status(f"  ERROR at {self.location()}: {message}")
         self.errors += 1
 
-    def location(self):
-        return f"{self.filename}:{self._locator.getLineNumber()}"
+    def location(self) -> str:
+        return f"{self.filename}:{self._locator.getLineNumber()}"  # type: ignore
 
-    def check_start_line(self, start_line) -> int:
+    def check_start_line(self, start_line: str) -> int:
         if start_line[0].isspace():
             self.validationError(f"Start line starts with whitespace: '{start_line}'")
             return 0
@@ -113,12 +114,12 @@ class RfcHttpValidator(sax.ContentHandler):
                     self.validationError(f"Request line '{start_line}' has extra text")
         return 1
 
-    def combine_8792(self, lines):
+    def combine_8792(self, lines: List[str]) -> List[str]:
         if not "NOTE: '\\' line wrapping per RFC 8792" in lines[0]:
             return lines
         else:
             lines = lines[2:]
-        output = []
+        output = []  # type: List[str]
         continuation = False
         for line in lines:
             prev_continuation = continuation
@@ -133,8 +134,8 @@ class RfcHttpValidator(sax.ContentHandler):
                 output.append(line)
         return output
 
-    def combine_headers(self, lines):
-        headers = {}
+    def combine_headers(self, lines: List[str]) -> Dict[str, str]:
+        headers = {}  # type: Dict[str, str]
         prev_name = None
         in_body = False
         for line in lines:

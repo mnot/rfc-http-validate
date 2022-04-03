@@ -13,6 +13,10 @@ tidy: venv
 lint: venv
 	PYTHONPATH=$(VENV) $(VENV)/pylint --output-format=colorized $(PROJECT)
 
+.PHONY: typecheck
+typecheck: venv
+	PYTHONPATH=$(VENV) $(VENV)/python -m mypy $(PROJECT)
+
 .PHONY: clean
 clean:
 	find . -d -type d -name __pycache__ -exec rm -rf {} \;
@@ -35,7 +39,7 @@ build: clean venv
 	$(VENV)/python -m build
 
 .PHONY: upload
-upload: build test version
+upload: build test typecheck version
 	git tag $(PROJECT)-$(VERSION)
 	git push
 	git push --tags origin

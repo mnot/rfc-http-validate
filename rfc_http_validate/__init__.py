@@ -3,9 +3,10 @@
 import argparse
 import json
 import sys
+from typing import Callable, Dict
 from xml import sax
 
-import http_sfv
+import http_sfv  # type: ignore
 
 from .validate import RfcHttpValidator
 
@@ -18,11 +19,11 @@ class ValidatorCLI:
         self.typemap = self.load_typemap()
         self.run()
 
-    def run(self):
+    def run(self) -> None:
         errors = 0
         for fh in self.args.file:
             handler = RfcHttpValidator(self.typemap, self.status)
-            handler.filename = fh.name
+            handler.filename = fh.name  # type: ignore
             sax.parse(fh, handler)
             errors += handler.errors
         if errors > 0:
@@ -32,7 +33,7 @@ class ValidatorCLI:
         if not self.args.quiet:
             print(*args)
 
-    def parse_args(self):
+    def parse_args(self) -> argparse.Namespace:
         parser = argparse.ArgumentParser(
             description="Validate HTTP messages in XML2RFC documents"
         )
@@ -82,7 +83,7 @@ class ValidatorCLI:
         )
         return parser.parse_args()
 
-    def load_typemap(self):
+    def load_typemap(self) -> Dict[str, Callable]:
         typemap = {}
         if self.args.map:
             try:
@@ -113,8 +114,9 @@ class ValidatorCLI:
         return typemap
 
 
-def main():
+def main() -> None:
     ValidatorCLI()
+
 
 if __name__ == "__main__":
     main()
