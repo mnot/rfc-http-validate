@@ -1,5 +1,10 @@
 PROJECT=rfc_http_validate
 
+
+.PHONY: test
+test: venv
+	echo "Write some tests please."
+
 .PHONY: tidy
 tidy: venv
 	$(VENV)/black $(PROJECT)
