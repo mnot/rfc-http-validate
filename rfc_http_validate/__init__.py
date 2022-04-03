@@ -113,5 +113,8 @@ class ValidatorCLI:
         return typemap
 
 
-if __name__ == "__main__":
+def main():
     ValidatorCLI()
+
+if __name__ == "__main__":
+    main()
