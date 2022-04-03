@@ -142,7 +142,7 @@ class RfcHttpValidator(sax.ContentHandler):
             return
         parts = start_line.split(" ")
         if parts[0][-1] == ":":
-            return lines  # it must be a header line
+            return  # it must be a header line
         if "http" in parts[0].lower():
             self.validationStatus(
                 f"{self.location()}: validating status line {start_line}"
