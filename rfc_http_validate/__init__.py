@@ -7,6 +7,8 @@ from xml import sax
 
 import http_sfv
 
+__version__ = "0.1.5"
+
 REGISTERED_METHODS = [
     "ACL",
     "BASELINE-CONTROL",

@@ -1,31 +1,41 @@
-PYTHON=python3
-PYTHONPATH=./
+PROJECT=rfc_http_validate
 
-name=rfc-http-validate
-version=`python3 -c 'import importlib;a=importlib.import_module("setup");print(a.version)'`
-
-.PHONY: version
-version:
-	echo $(version)
+.PHONY: tidy
+tidy: venv
+	$(VENV)/black $(PROJECT)
 
 .PHONY: lint
-lint:
-	PYTHONPATH=$(PYTHONPATH) $(PYTHON) -m pylint $(name).py
-
-.PHONY: black
-black:
-	PYTHONPATH=$(PYTHONPATH) black *.py
+lint: venv
+	PYTHONPATH=$(VENV) $(VENV)/pylint --output-format=colorized $(PROJECT)
 
 .PHONY: clean
 clean:
-	rm -rf build dist MANIFEST $(name).egg-info
-	find . -type f -name \*.pyc -exec rm {} \;
 	find . -d -type d -name __pycache__ -exec rm -rf {} \;
+	rm -rf build dist MANIFEST $(PROJECT).egg-info .venv .mypy_cache *.log
 
-.PHONY: dist
-dist: clean
-	git tag $(name)-$(version)
+.PHONY: cli
+cli: venv
+	PYTHONPATH=$(VENV) $(VENV)/pip install .
+	PYTHONPATH=$(VENV):. sh
+
+#############################################################################
+## Distribution
+
+.PHONY: version
+version: venv
+	$(eval VERSION=$(shell $(VENV)/python -c "import $(PROJECT); print($(PROJECT).__version__)"))
+
+.PHONY: build
+build: clean venv
+	$(VENV)/python -m build
+
+.PHONY: upload
+upload: build test version
+	git tag $(PROJECT)-$(VERSION)
 	git push
 	git push --tags origin
-	$(PYTHON) setup.py sdist
-	$(PYTHON) -m twine upload dist/*
+	$(VENV)/python -m twine upload dist/*
+
+
+
+include Makefile.venv
