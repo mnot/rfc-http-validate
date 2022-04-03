@@ -222,9 +222,7 @@ class RfcHttpValidator(sax.ContentHandler):
             except ValueError:
                 raise ValueError(f"Non-field line '{line}' in content")
             if " " in name:
-                self.validationError(
-                    f"Whitespace in field name '{name}'"
-                )
+                self.validationError(f"Whitespace in field name '{name}'")
             name = name.lower()
             value = value.strip()
             if name in headers:
@@ -271,7 +269,10 @@ def main():
         help="field name to consider as a Structured Dictionary",
     )
     parser.add_argument(
-        "-q", "--quiet", action="store_true", help="suppress status messages",
+        "-q",
+        "--quiet",
+        action="store_true",
+        help="suppress status messages",
     )
     parser.add_argument(
         "file", type=argparse.FileType("r"), nargs="+", help="an XML file to validate"
