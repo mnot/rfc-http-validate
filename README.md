@@ -54,7 +54,7 @@ To validated structured fields, you can pass type information (i.e., List, Dicti
 
 To pass a type on the command line, use the `--list`, `--dictionary` or `--item` arguments as appropriate, followed by the field name. For example:
 
-> rfc-http-validate.py --list Foo --list Bar --item Baz my_draft_.xml
+> rfc-http-validate --list Foo --list Bar --item Baz my_draft_.xml
 
 Here, `Foo` and `Bar` will be validated as Structured Lists, while `Baz` will be validated as a Structured Item.
 
@@ -70,7 +70,7 @@ Alternatively, you can collect this information in a JSON file, with the top-lev
 
 ... and passed to the script like this:
 
-> rfc-http-validate.py --map sf.json my_draft.xml
+> rfc-http-validate --map sf.json my_draft.xml
 
 
 ## Installation
