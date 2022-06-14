@@ -84,7 +84,7 @@ class ValidatorCLI:
         return parser.parse_args()
 
     def load_typemap(self) -> Dict[str, Callable]:
-        typemap = {}
+        typemap: Dict[str, Callable] = {}
         if self.args.map:
             try:
                 rawmap = json.load(self.args.map)
