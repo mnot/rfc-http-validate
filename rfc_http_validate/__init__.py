@@ -10,7 +10,7 @@ import http_sfv  # type: ignore
 
 from .validate import RfcHttpValidator
 
-__version__ = "0.2.0"
+__version__ = "0.2.1"
 
 
 class ValidatorCLI:
