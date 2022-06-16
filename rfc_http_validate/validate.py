@@ -18,9 +18,6 @@ class ValidatorUi:
     def error(self, subject: str, message: str) -> None:
         pass
 
-    def skip(self, subject: str, message: str) -> None:
-        pass
-
 
 class RfcHttpValidator(ContentHandler):
     def __init__(self, typemap: Dict[str, Callable], ui: ValidatorUi):
