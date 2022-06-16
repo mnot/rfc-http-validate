@@ -9,6 +9,7 @@ from xml import sax
 from blessings import Terminal  # type: ignore[import]
 import http_sfv
 
+from .typemap import typemap as base_typemap
 from .validate import RfcHttpValidator, ValidatorUi
 
 __version__ = "0.2.1"
@@ -98,27 +99,15 @@ class ValidatorCLI(ValidatorUi):
         return parser.parse_args()
 
     def load_typemap(self) -> Dict[str, Callable]:
-        typemap: Dict[str, Callable] = {}
+        typemap = self.process_typemap(base_typemap)
         if self.args.map:
             try:
-                rawmap = json.load(self.args.map)
+                jsonmap = json.load(self.args.map)
             except (IOError, ValueError) as why:
                 sys.stderr.write(f"ERROR loading JSON: {why}\n")
                 sys.exit(1)
-            try:
-                typemap.update(
-                    {
-                        k.lower(): {
-                            "item": http_sfv.Item,
-                            "list": http_sfv.List,
-                            "dict": http_sfv.Dictionary,
-                        }[v]
-                        for (k, v) in rawmap.items()
-                    }
-                )
-            except KeyError as why:
-                sys.stderr.write(f"ERROR loading JSON value: {why}\n")
-                sys.exit(1)
+            typemap.update(self.process_typemap(jsonmap))
+
         for item in self.args.item:
             typemap[item.lower()] = http_sfv.Item
         for _list in self.args.list:
@@ -126,6 +115,20 @@ class ValidatorCLI(ValidatorUi):
         for _dict in self.args.dict:
             typemap[_dict.lower()] = http_sfv.Dictionary
         return typemap
+
+    def process_typemap(self, typemap: Dict[str, str]) -> Dict[str, Callable]:
+        try:
+            return {
+                k.lower(): {
+                    "item": http_sfv.Item,
+                    "list": http_sfv.List,
+                    "dict": http_sfv.Dictionary,
+                }[v]
+                for (k, v) in typemap.items()
+            }
+        except KeyError as why:
+            sys.stderr.write(f"ERROR loading JSON value: {why}\n")
+            sys.exit(1)
 
 
 def main() -> None:
