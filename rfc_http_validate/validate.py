@@ -104,8 +104,7 @@ class RfcHttpValidator(ContentHandler):
     def combine_8792(self, lines: List[str]) -> List[str]:
         if not "NOTE: '\\' line wrapping per RFC 8792" in lines[0]:
             return lines
-        else:
-            lines = lines[2:]
+        lines = lines[2:]
         output = []  # type: List[str]
         continuation = False
         for line in lines:
@@ -128,9 +127,9 @@ class RfcHttpValidator(ContentHandler):
         for line in lines:
             if len(line.strip()) == 0:
                 if not headers:  # a blank line before seeing any headers
-                    raise ValueError(f"Body without headers")
+                    raise ValueError("Body without headers")
                 in_body = True
-                self.ui.status(f"ignoring HTTP message body")
+                self.ui.status("ignoring HTTP message body")
             if in_body:
                 continue
             if line[0] == " ":
@@ -142,8 +141,8 @@ class RfcHttpValidator(ContentHandler):
                 )
             try:
                 name, value = line.split(":", 1)
-            except ValueError:
-                raise ValueError(f"Non-field line '{line}' in content")
+            except ValueError as why:
+                raise ValueError(f"Non-field line '{line}' in content") from why
             if " " in name:
                 self.ui.error(f"Whitespace in field name '{name}'")
             name = name.lower()
