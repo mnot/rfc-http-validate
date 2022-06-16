@@ -9,7 +9,7 @@ from xml import sax
 from blessings import Terminal  # type: ignore[import]
 import http_sfv
 
-from .typemap import typemap as base_typemap
+from .retrofit import typemap as base_typemap
 from .validate import RfcHttpValidator, ValidatorUi
 
 __version__ = "0.2.1"
