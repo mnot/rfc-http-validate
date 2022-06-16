@@ -126,11 +126,13 @@ class ValidatorCLI(ValidatorUi):
                 for (k, v) in typemap.items()
             }
         except KeyError as why:
-            self.fatal_error("Cannot load field type mapping: {why}")
+            self.fatal_error(f"Cannot load field type mapping: {why}")
+            raise
 
-    def fatal_error(self, message):
+    def fatal_error(self, message: str) -> None:
         sys.stderr.write(f"{term.red}FATAL ERROR:{term.normal} {message}\n")
         sys.exit(1)
+
 
 def main() -> None:
     ValidatorCLI()
