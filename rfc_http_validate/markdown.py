@@ -22,8 +22,8 @@ class MarkdownHttpExtractor(commonmark.render.renderer.Renderer):
 
     def code_block(self, node: Node, entering: bool) -> None:
         info = node.info or ""
+        self.sourcepos = node.sourcepos[0][0]
         if info in ["http-message"]:
-            self.sourcepos = node.sourcepos[0][0]
             self.validator.validate(node.literal, self.location)
         else:
             self.validator.ui.skip(self.location(info), "section not a 'http-message'")
