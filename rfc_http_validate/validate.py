@@ -60,7 +60,7 @@ class RfcHttpValidator(ContentHandler):
                     else:
                         self.ui.skip(self.location(hname), "no type information")
             else:
-                self.ui.skip(self.location(self.type), "not http-message")
+                self.ui.skip(self.location(self.type), "section not a 'http-message'")
         self.content = ""
 
     def characters(self, content: str) -> None:
