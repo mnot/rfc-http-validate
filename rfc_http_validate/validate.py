@@ -1,6 +1,4 @@
-from os.path import basename
 from typing import Callable, Dict, List
-from xml.sax.handler import ContentHandler
 
 from .methods import REGISTERED_METHODS
 
@@ -18,60 +16,40 @@ class ValidatorUi:
     def error(self, subject: str, message: str) -> None:
         pass
 
+    def fatal_error(self, message: str) -> None:
+        pass
 
-class RfcHttpValidator(ContentHandler):
+
+class RfcHttpValidator:
     def __init__(self, typemap: Dict[str, Callable], ui: ValidatorUi):
-        ContentHandler.__init__(self)
         self.typemap = typemap
         self.ui = ui
-        self.listening = False
-        self.content = ""
-        self.type: str = None
+        self.location: Callable[..., str] = None
 
-    def startElement(self, name: str, attrs: Dict[str, str]) -> None:
-        if name in ["sourcecode", "artwork"] and "type" in attrs.keys():
-            self.listening = True
-            self.type = attrs["type"]
-
-    def endElement(self, name: str) -> None:
-        if self.listening:
-            self.listening = False
-            if self.type in ["http-message"]:
-                lines = self.content.strip("\n").split("\n")
-                if len(lines) == 0:
-                    self.ui.error(self.location(), "Empty http-message")
-                    return
-                lines = self.combine_8792(lines)
-                skip_lines = self.check_start_line(lines[0])
+    def validate(self, http_message: str, location: Callable[..., str]) -> None:
+        self.location = location
+        lines = http_message.strip("\n").split("\n")
+        if len(lines) == 0:
+            self.ui.error(self.location(), "Empty http-message")
+            return
+        lines = self.combine_8792(lines)
+        skip_lines = self.check_start_line(lines[0])
+        try:
+            headers = self.combine_headers(lines[skip_lines:])
+        except ValueError as why:
+            self.ui.error(self.location(), str(why))
+            return
+        for hname, hvalue in headers.items():
+            header_type = self.typemap.get(hname)
+            if header_type:
+                subject = f"{hname}: {hvalue}"
                 try:
-                    headers = self.combine_headers(lines[skip_lines:])
+                    header_type().parse(hvalue.encode("ascii"))
+                    self.ui.success(self.location(subject), "valid")
                 except ValueError as why:
-                    self.ui.error(self.location(), str(why))
-                    return
-                for hname, hvalue in headers.items():
-                    header_type = self.typemap.get(hname)
-                    if header_type:
-                        subject = f"{hname}: {hvalue}"
-                        try:
-                            header_type().parse(hvalue.encode("ascii"))
-                            self.ui.success(self.location(subject), "valid")
-                        except ValueError as why:
-                            self.ui.error(self.location(subject), str(why))
-                    else:
-                        self.ui.skip(self.location(hname), "no type information")
+                    self.ui.error(self.location(subject), str(why))
             else:
-                self.ui.skip(self.location(self.type), "section not a 'http-message'")
-        self.content = ""
-
-    def characters(self, content: str) -> None:
-        if self.listening:
-            self.content += content
-
-    def location(self, pinpoint: str = "") -> str:
-        return (
-            f"{basename(self.filename)}:{self._locator.getLineNumber()} "  # type: ignore
-            f"'{pinpoint}'"
-        )
+                self.ui.skip(self.location(hname), "no type information")
 
     def check_start_line(self, start_line: str) -> int:
         if start_line[0].isspace():
