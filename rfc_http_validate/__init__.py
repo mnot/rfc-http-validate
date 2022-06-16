@@ -6,7 +6,7 @@ import sys
 from typing import Callable, Dict
 from xml import sax
 
-import http_sfv  # type: ignore
+import http_sfv
 
 from .validate import RfcHttpValidator, ValidatorUi
 
@@ -14,7 +14,7 @@ __version__ = "0.2.1"
 
 
 class ValidatorCLI(ValidatorUi):
-    def __init__(self):
+    def __init__(self) -> None:
         self.args = self.parse_args()
         self.typemap = self.load_typemap()
         self.errors = 0

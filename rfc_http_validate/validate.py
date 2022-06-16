@@ -19,14 +19,14 @@ class RfcHttpValidator(ContentHandler):
         self.ui = ui
         self.listening = False
         self.content = ""
-        self.type = None
+        self.type: str = None
 
-    def startElement(self, name, attrs):
+    def startElement(self, name: str, attrs: Dict[str, str]) -> None:
         if name in ["sourcecode", "artwork"] and "type" in attrs.keys():
             self.listening = True
             self.type = attrs["type"]
 
-    def endElement(self, name):
+    def endElement(self, name: str) -> None:
         if self.listening:
             self.listening = False
             if self.type in ["http-message"]:
@@ -39,7 +39,7 @@ class RfcHttpValidator(ContentHandler):
                 try:
                     headers = self.combine_headers(lines[skip_lines:])
                 except ValueError as why:
-                    self.ui.error(why)
+                    self.ui.error(str(why))
                     return
                 for hname, hvalue in headers.items():
                     header_type = self.typemap.get(hname)
@@ -48,7 +48,7 @@ class RfcHttpValidator(ContentHandler):
                             self.ui.status(f"validating field value {hname}: {hvalue}")
                             header_type().parse(hvalue.encode("ascii"))
                         except ValueError as why:
-                            self.ui.error(why)
+                            self.ui.error(str(why))
                     else:
                         self.ui.status(
                             f"skipping field value {hname} (no type information)"
@@ -57,7 +57,7 @@ class RfcHttpValidator(ContentHandler):
                 self.ui.status(f"skipping section {self.type}")
         self.content = ""
 
-    def characters(self, content):
+    def characters(self, content: str) -> None:
         if self.listening:
             self.content += content
 
@@ -123,7 +123,7 @@ class RfcHttpValidator(ContentHandler):
 
     def combine_headers(self, lines: List[str]) -> Dict[str, str]:
         headers = {}  # type: Dict[str, str]
-        prev_name = None
+        prev_name: str = None
         in_body = False
         for line in lines:
             if len(line.strip()) == 0:
