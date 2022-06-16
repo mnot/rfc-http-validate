@@ -8,30 +8,33 @@ from xml import sax
 
 import http_sfv  # type: ignore
 
-from .validate import RfcHttpValidator
+from .validate import RfcHttpValidator, ValidatorUi
 
 __version__ = "0.2.1"
 
 
-class ValidatorCLI:
+class ValidatorCLI(ValidatorUi):
     def __init__(self):
         self.args = self.parse_args()
         self.typemap = self.load_typemap()
+        self.errors = 0
         self.run()
 
     def run(self) -> None:
-        errors = 0
         for fh in self.args.file:
-            handler = RfcHttpValidator(self.typemap, self.status)
+            handler = RfcHttpValidator(self.typemap, self)
             handler.filename = fh.name  # type: ignore
             sax.parse(fh, handler)
-            errors += handler.errors
-        if errors > 0:
+        if self.errors > 0:
             sys.exit(1)
 
-    def status(self, *args):
+    def status(self, message: str) -> None:
         if not self.args.quiet:
-            print(*args)
+            print(message)
+
+    def error(self, message: str) -> None:
+        self.errors += 1
+        print(message)
 
     def parse_args(self) -> argparse.Namespace:
         parser = argparse.ArgumentParser(
