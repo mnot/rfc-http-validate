@@ -6,11 +6,14 @@ import sys
 from typing import Callable, Dict
 from xml import sax
 
+from blessings import Terminal  # type: ignore[import]
 import http_sfv
 
 from .validate import RfcHttpValidator, ValidatorUi
 
 __version__ = "0.2.1"
+
+term = Terminal()
 
 
 class ValidatorCLI(ValidatorUi):
@@ -34,7 +37,7 @@ class ValidatorCLI(ValidatorUi):
 
     def error(self, message: str) -> None:
         self.errors += 1
-        print(message)
+        print(f"{term.red}ERROR:{term.normal} {message}")
 
     def parse_args(self) -> argparse.Namespace:
         parser = argparse.ArgumentParser(
