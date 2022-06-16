@@ -25,6 +25,8 @@ class MarkdownHttpExtractor(commonmark.render.renderer.Renderer):
         if info in ["http-message"]:
             self.sourcepos = node.sourcepos[0][0]
             self.validator.validate(node.literal, self.location)
+        else:
+            self.validator.ui.skip(self.location(info), "section not a 'http-message'")
 
     def location(self, pinpoint: str = "") -> str:
         out = f"{basename(self.filename)}:{self.sourcepos}"
