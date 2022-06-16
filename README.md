@@ -1,12 +1,8 @@
 # rfc-http-validate
 
-This is a simple script to validate HTTP messages (possibly containing [Structured Fields](https://httpwg.org/http-extensions/draft-ietf-httpbis-header-structure.html)) in [xml2rfcv3](https://tools.ietf.org/html/rfc7991) documents.
+This is a simple script to validate HTTP messages (possibly containing [Structured Fields](https://httpwg.org/http-extensions/draft-ietf-httpbis-header-structure.html)) in [xml2rfcv3](https://tools.ietf.org/html/rfc7991) documents and [kramdown-rfc](https://github.com/cabo/kramdown-rfc) documents.
 
-
-## HTTP Messages in RFC XML
-
-This script examines all `sourcecode` and `artwork` elements; when one has a `type` of
-`http-message`, it checks that the content:
+It checks that the content of an HTTP message:
 
 * Optionally, starts with a valid HTTP/1.1 request or status line
 * Has one or more HTTP/1.1 header field lines, possibly with line folding (so that long lines can be formatted within the constraints of the RFC format)
@@ -16,23 +12,9 @@ The start line will be checked that the method or status code is reasonable, and
 
 Header fields will be validated for general syntax. Additionally, header field names that are configured with structured type information (see below) will be validated according to that type.
 
-For example,
-
-~~~ xml
-<sourcecode type="http-message">
-Foo: bar; baz
-Foo: one,
-     two
-</sourcecode>
-~~~
-
-... will be validated as having a single field, `foo`, with the value `bar; baz, one, two`.
-
 The body, if present, is currently ignored (i.e., the `Content-Length` is not checked).
 
-Note that in your XML, there **must not be any whitespace** at the start of lines, unless they're continuation of previous lines (folding, as seen above).
-
-If an RFC8792 `\\` wrapping header is present, lines will be unwrapped first (i.e., before unfolding, as per above). This is useful for long lines with binary content (which cannot contain whitespace); e.g.,
+If an [RFC8792](https://www.rfc-editor.org/rfc/rfc8792.html) `\\` wrapping header is present, lines will be unwrapped first (i.e., before unfolding, as per above). This is useful for long lines with binary content (which cannot contain whitespace); e.g.,
 
 ~~~ xml
 <sourcecode type="http-message">
@@ -48,13 +30,52 @@ Signature: sig1=:K2qGT5srn2OGbOIDzQ6kYT+ruaycnDAAUpKv+ePFfD0RAxn/1BUe\
 ~~~
 
 
+## Validating HTTP Messages in Markdown
+
+In Markdown, all you need to do is adorn your messages with `http-messsage`; for example:
+
+%%%
+~~~ http-message
+HTTP/1.1 200 OK
+Foo: bar, baz
+~~~
+%%%
+
+Then, run:
+
+> rfc-http-validate my-draft.md
+
+
+## Validating HTTP Messages in RFC XML
+
+In XML, this script examines all `sourcecode` and `artwork` elements; when one has a `type` of
+`http-message`.
+
+For example,
+
+~~~ xml
+<sourcecode type="http-message">
+Foo: bar; baz
+Foo: one,
+     two
+</sourcecode>
+~~~
+
+Then, run:
+
+> rfc-http-validate my-draft.xml
+
+Note that in your XML, there **must not be any whitespace** at the start of lines, unless they're continuation of previous lines (folding, as seen above).
+
+
+
 ## Configuring Structured Type Information for Fields
 
 By default, the types of existing Structured Fields (including those that are compatible with Structured Fields; see [Retrofit Structured Fields for HTTP](https://datatracker.ietf.org/doc/draft-ietf-httpbis-retrofit/)) are known. Type information for other fields can be added on the command line or through a file.
 
 To pass a type on the command line, use the `--list`, `--dictionary` or `--item` arguments as appropriate, followed by the field name. For example:
 
-> rfc-http-validate --list Foo --list Bar --item Baz my_draft_.xml
+> rfc-http-validate --list Foo --list Bar --item Baz my_draft.xml
 
 Here, `Foo` and `Bar` will be validated as Structured Lists, while `Baz` will be validated as a Structured Item.
 
