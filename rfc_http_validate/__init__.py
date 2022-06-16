@@ -35,9 +35,17 @@ class ValidatorCLI(ValidatorUi):
         if not self.args.quiet:
             print(message)
 
-    def error(self, message: str) -> None:
+    def success(self, subject: str, message: str) -> None:
+        if not self.args.quiet:
+            print(f"{subject} -- {term.green}{message}{term.normal}")
+
+    def error(self, subject: str, message: str) -> None:
         self.errors += 1
-        print(f"{term.red}ERROR:{term.normal} {message}")
+        print(f"{subject}: {term.red}{message}{term.normal}")
+
+    def skip(self, subject: str, message: str) -> None:
+        if not self.args.quiet:
+            print(f"{subject}: {term.yellow}{message}{term.normal}")
 
     def parse_args(self) -> argparse.Namespace:
         parser = argparse.ArgumentParser(
@@ -79,7 +87,7 @@ class ValidatorCLI(ValidatorUi):
             "--quiet",
             dest="quiet",
             action="store_true",
-            help="suppress status messages",
+            help="only output errors",
         )
         parser.add_argument(
             "file",

@@ -1,3 +1,4 @@
+from os.path import basename
 from typing import Callable, Dict, List
 from xml.sax.handler import ContentHandler
 
@@ -8,7 +9,13 @@ class ValidatorUi:
     def status(self, message: str) -> None:
         pass
 
-    def error(self, message: str) -> None:
+    def skip(self, subject: str, message: str) -> None:
+        pass
+
+    def success(self, subject: str, message: str) -> None:
+        pass
+
+    def error(self, subject: str, message: str) -> None:
         pass
 
 
@@ -32,73 +39,82 @@ class RfcHttpValidator(ContentHandler):
             if self.type in ["http-message"]:
                 lines = self.content.strip("\n").split("\n")
                 if len(lines) == 0:
-                    self.ui.error("Empty http-message")
+                    self.ui.error(self.location(), "Empty http-message")
                     return
                 lines = self.combine_8792(lines)
                 skip_lines = self.check_start_line(lines[0])
                 try:
                     headers = self.combine_headers(lines[skip_lines:])
                 except ValueError as why:
-                    self.ui.error(str(why))
+                    self.ui.error(self.location(), str(why))
                     return
                 for hname, hvalue in headers.items():
                     header_type = self.typemap.get(hname)
                     if header_type:
+                        subject = f"{hname}: {hvalue}"
                         try:
-                            self.ui.status(f"validating field value {hname}: {hvalue}")
                             header_type().parse(hvalue.encode("ascii"))
+                            self.ui.success(self.location(subject), "valid")
                         except ValueError as why:
-                            self.ui.error(str(why))
+                            self.ui.error(self.location(subject), str(why))
                     else:
-                        self.ui.status(
-                            f"skipping field value {hname} (no type information)"
-                        )
+                        self.ui.skip(self.location(hname), "no type information")
             else:
-                self.ui.status(f"skipping section {self.type}")
+                self.ui.skip(self.location(self.type), "not http-message")
         self.content = ""
 
     def characters(self, content: str) -> None:
         if self.listening:
             self.content += content
 
-    def location(self) -> str:
-        return f"{self.filename}:{self._locator.getLineNumber()}"  # type: ignore
+    def location(self, pinpoint: str = "") -> str:
+        return (
+            f"{basename(self.filename)}:{self._locator.getLineNumber()}"  # type: ignore
+            f"'{pinpoint}'"
+        )
 
     def check_start_line(self, start_line: str) -> int:
         if start_line[0].isspace():
-            self.ui.error(f"Start line starts with whitespace: '{start_line}'")
+            self.ui.error(
+                self.location(start_line), "Start line starts with whitespace"
+            )
             return 0
         parts = start_line.split(" ")
         if parts[0][-1] == ":":
             return 0  # it must be a header line
         if "http" in parts[0].lower():
-            self.ui.status(f"{self.location()}: validating status line {start_line}")
             if parts[0] != "HTTP/1.1":
                 self.ui.error(
-                    f"Status line '{start_line}' doesn't start with 'HTTP/1.1'"
+                    self.location(start_line),
+                    "Status line doesn't start with 'HTTP/1.1'",
                 )
             elif len(parts) < 3:
                 self.ui.error(
-                    f"Status line '{start_line}' isn't 'HTTP/1.1 [status_code] [status_phrase]'"
+                    self.location(),
+                    f"Status line '{start_line}' isn't 'HTTP/1.1 [status_code] [status_phrase]'",
                 )
             else:
                 if not parts[1].isdigit():
-                    self.ui.error(f"Status code {parts[1]} is non-numeric")
+                    self.ui.error(self.location(parts[1]), "Non-numeric status code")
                 elif not 99 < int(parts[1]) < 600:
-                    self.ui.error(f"Status code {parts[1]} is out of range")
+                    self.ui.error(self.location(parts[1]), "Status code out of range")
         else:
-            self.ui.status(f"{self.location()}: validating request line {start_line}")
             if len(parts) < 3:
-                self.ui.error("Request line isn't '[method] [url] HTTP/1.1'")
+                self.ui.error(
+                    self.location(), "Request line isn't '[method] [url] HTTP/1.1'"
+                )
             else:
                 if parts[0] not in REGISTERED_METHODS:
-                    self.ui.error(f"Method '{parts[0]}' not recognised")
+                    self.ui.error(self.location(parts[0]), "Method not recognised")
                 if parts[2] != "HTTP/1.1":
                     self.ui.error(
-                        f"Request line '{start_line}' doesn't end with 'HTTP/1.1'"
+                        self.location(),
+                        f"Request line '{start_line}' doesn't end with 'HTTP/1.1'",
                     )
                 if len(parts) > 3:
-                    self.ui.error(f"Request line '{start_line}' has extra text")
+                    self.ui.error(
+                        self.location(start_line), "Request line has extra text"
+                    )
         return 1
 
     def combine_8792(self, lines: List[str]) -> List[str]:
@@ -129,7 +145,6 @@ class RfcHttpValidator(ContentHandler):
                 if not headers:  # a blank line before seeing any headers
                     raise ValueError("Body without headers")
                 in_body = True
-                self.ui.status("ignoring HTTP message body")
             if in_body:
                 continue
             if line[0] == " ":
@@ -144,7 +159,7 @@ class RfcHttpValidator(ContentHandler):
             except ValueError as why:
                 raise ValueError(f"Non-field line '{line}' in content") from why
             if " " in name:
-                self.ui.error(f"Whitespace in field name '{name}'")
+                self.ui.error(self.location(name), "Whitespace in field name")
             name = name.lower()
             value = value.strip()
             if name in headers:
