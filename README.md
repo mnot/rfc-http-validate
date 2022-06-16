@@ -50,7 +50,7 @@ Signature: sig1=:K2qGT5srn2OGbOIDzQ6kYT+ruaycnDAAUpKv+ePFfD0RAxn/1BUe\
 
 ## Configuring Structured Type Information for Fields
 
-To validated structured fields, you can pass type information (i.e., List, Dictionary, or Item) for field names on the command line, or in a configuration file.
+By default, the types of existing Structured Fields (including those that are compatible with Structured Fields; see [Retrofit Structured Fields for HTTP](https://datatracker.ietf.org/doc/draft-ietf-httpbis-retrofit/)) are known. Type information for other fields can be added on the command line or through a file.
 
 To pass a type on the command line, use the `--list`, `--dictionary` or `--item` arguments as appropriate, followed by the field name. For example:
 
