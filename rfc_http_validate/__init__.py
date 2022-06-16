@@ -104,8 +104,7 @@ class ValidatorCLI(ValidatorUi):
             try:
                 jsonmap = json.load(self.args.map)
             except (IOError, ValueError) as why:
-                sys.stderr.write(f"ERROR loading JSON: {why}\n")
-                sys.exit(1)
+                self.fatal_error(f"Cannot load JSON: {why}")
             typemap.update(self.process_typemap(jsonmap))
 
         for item in self.args.item:
@@ -127,9 +126,11 @@ class ValidatorCLI(ValidatorUi):
                 for (k, v) in typemap.items()
             }
         except KeyError as why:
-            sys.stderr.write(f"ERROR loading JSON value: {why}\n")
-            sys.exit(1)
+            self.fatal_error("Cannot load field type mapping: {why}")
 
+    def fatal_error(self, message):
+        sys.stderr.write(f"{term.red}FATAL ERROR:{term.normal} {message}\n")
+        sys.exit(1)
 
 def main() -> None:
     ValidatorCLI()
