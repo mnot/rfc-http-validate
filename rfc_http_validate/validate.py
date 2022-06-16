@@ -69,7 +69,7 @@ class RfcHttpValidator(ContentHandler):
 
     def location(self, pinpoint: str = "") -> str:
         return (
-            f"{basename(self.filename)}:{self._locator.getLineNumber()}"  # type: ignore
+            f"{basename(self.filename)}:{self._locator.getLineNumber()} "  # type: ignore
             f"'{pinpoint}'"
         )
 
