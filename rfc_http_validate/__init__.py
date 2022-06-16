@@ -12,7 +12,7 @@ import http_sfv
 from .retrofit import typemap as base_typemap
 from .validate import RfcHttpValidator, ValidatorUi
 
-__version__ = "0.2.2"
+__version__ = "0.2.3"
 
 term = Terminal()
 
