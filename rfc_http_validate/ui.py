@@ -8,6 +8,7 @@ import http_sfv
 
 from .retrofit import typemap as base_typemap
 from .validate import RfcHttpValidator, ValidatorUi
+from .markdown import extract_md
 from .xml import extract_xml
 
 term = Terminal()
@@ -23,7 +24,12 @@ class ValidatorCLI(ValidatorUi):
     def run(self) -> None:
         validator = RfcHttpValidator(self.typemap, self)
         for fh in self.args.file:
-            extract_xml(fh, validator)
+            if fh.name.endswith(".xml"):
+                extract_xml(fh, validator)
+            elif fh.name.endswith(".md"):
+                extract_md(fh, validator)
+            else:
+                self.fatal_error(f"Can't determine format of {fh.name}")
         if self.errors > 0:
             sys.exit(1)
 
