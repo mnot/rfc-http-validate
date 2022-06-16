@@ -34,12 +34,12 @@ Signature: sig1=:K2qGT5srn2OGbOIDzQ6kYT+ruaycnDAAUpKv+ePFfD0RAxn/1BUe\
 
 In Markdown, all you need to do is adorn your messages with `http-messsage`; for example:
 
-%%%
+~~~~
 ~~~ http-message
 HTTP/1.1 200 OK
 Foo: bar, baz
 ~~~
-%%%
+~~~~
 
 Then, run:
 
