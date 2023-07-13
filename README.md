@@ -1,5 +1,17 @@
 # rfc-http-validate
 
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+
+- [Validating HTTP Messages in Markdown](#validating-http-messages-in-markdown)
+- [Validating HTTP Messages in RFC XML](#validating-http-messages-in-rfc-xml)
+- [Configuring Structured Type Information for Fields](#configuring-structured-type-information-for-fields)
+- [Installation](#installation)
+- [Use with I-D-Template](#use-with-i-d-template)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
+
 This is a simple script to validate HTTP messages (possibly containing [Structured Fields](https://httpwg.org/http-extensions/draft-ietf-httpbis-header-structure.html)) in [xml2rfcv3](https://tools.ietf.org/html/rfc7991) documents and [kramdown-rfc](https://github.com/cabo/kramdown-rfc) documents.
 
 It checks that the content of an HTTP message:
@@ -100,3 +112,24 @@ The script requires Python 3, and can be installed with pip:
 
 > pip3 install rfc-http-validate
 
+
+## Use with I-D-Template
+
+To automatically lint files with MT's [I-D-Template](https://github.com/martinthomson/i-d-template):
+
+1. Add `rfc-http-validate` to `requirements.txt` (creating it if necessary)
+2. Add a `sf.json` file containing the field(s) your draft uses mapped to one of `item`, `list`, or `dict`
+3. Add the following to `Makefile`:
+
+~~~ Makefile
+lint:: http-lint
+
+rfc-http-validate ?= rfc-http-validate
+.SECONDARY: $(drafts_xml)
+.PHONY: http-lint
+http-lint: $(addsuffix .http-lint.txt,$(addprefix .,$(drafts)))
+.PHONY: .%.http-lint.txt
+.%.http-lint.txt: %.xml $(DEPS_FILES)
+	$(trace) $< -s http-lint $(rfc-http-validate) -q -m sf.json $<
+	@touch $@
+~~~
