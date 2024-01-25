@@ -1,6 +1,6 @@
 __version__ = "0.3.3"
 
-from .ui import ValidatorCLI
+from rfc_http_validate.ui import ValidatorCLI
 
 
 def main() -> None:

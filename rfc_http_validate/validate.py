@@ -1,6 +1,8 @@
 from typing import Callable, Dict, List
 
-from .methods import REGISTERED_METHODS
+import http_sf
+
+from rfc_http_validate.methods import REGISTERED_METHODS
 
 
 class ValidatorUi:
@@ -21,8 +23,8 @@ class ValidatorUi:
 
 
 class RfcHttpValidator:
-    def __init__(self, typemap: Dict[str, Callable], ui: ValidatorUi):
-        self.typemap = typemap
+    def __init__(self, field_types: Dict[str, str], ui: ValidatorUi):
+        self.field_types = field_types
         self.ui = ui
         self.location: Callable[..., str]
 
@@ -40,15 +42,14 @@ class RfcHttpValidator:
             self.ui.error(self.location(), str(why))
             return
         for hname, hvalue in headers.items():
-            header_type = self.typemap.get(hname)
-            if header_type:
-                subject = f"{hname}: {hvalue}"
-                try:
-                    header_type().parse(hvalue.encode("ascii"))
-                    self.ui.success(self.location(subject), "valid")
-                except ValueError as why:
-                    self.ui.error(self.location(subject), str(why))
-            else:
+            header_type = self.field_types.get(hname)
+            subject = f"{hname}: {hvalue}"
+            try:
+                http_sf.parse(hvalue.encode("ascii"), tltype=header_type, name=hname)
+                self.ui.success(self.location(subject), "valid")
+            except ValueError as why:
+                self.ui.error(self.location(subject), str(why))
+            except KeyError:
                 self.ui.skip(self.location(hname), "no type information")
 
     def check_start_line(self, start_line: str) -> int:

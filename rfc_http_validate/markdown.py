@@ -4,7 +4,7 @@ from typing import IO
 import commonmark
 from commonmark.node import Node
 
-from .validate import RfcHttpValidator
+from rfc_http_validate.validate import RfcHttpValidator
 
 
 def extract_md(fh: IO, validator: RfcHttpValidator) -> None:

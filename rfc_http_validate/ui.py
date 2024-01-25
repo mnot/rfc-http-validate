@@ -1,15 +1,13 @@
 import argparse
 import json
 import sys
-from typing import Callable, Dict
+from typing import Dict
 
 from blessings import Terminal  # type: ignore
-import http_sfv
 
-from .retrofit import typemap as base_typemap
-from .validate import RfcHttpValidator, ValidatorUi
-from .markdown import extract_md
-from .xml import extract_xml
+from rfc_http_validate.validate import RfcHttpValidator, ValidatorUi
+from rfc_http_validate.markdown import extract_md
+from rfc_http_validate.xml import extract_xml
 
 term = Terminal()
 
@@ -17,12 +15,12 @@ term = Terminal()
 class ValidatorCLI(ValidatorUi):
     def __init__(self) -> None:
         self.args = self.parse_args()
-        self.typemap = self.load_typemap()
+        self.field_types = self.load_field_types()
         self.errors = 0
         self.run()
 
     def run(self) -> None:
-        validator = RfcHttpValidator(self.typemap, self)
+        validator = RfcHttpValidator(self.field_types, self)
         for fh in self.args.file:
             if fh.name.endswith(".xml"):
                 extract_xml(fh, validator)
@@ -99,36 +97,22 @@ class ValidatorCLI(ValidatorUi):
         )
         return parser.parse_args()
 
-    def load_typemap(self) -> Dict[str, Callable]:
-        typemap = self.process_typemap(base_typemap)
+    def load_field_types(self) -> Dict[str, str]:
+        field_types = {}
         if self.args.map:
             try:
                 jsonmap = json.load(self.args.map)
             except (IOError, ValueError) as why:
                 self.fatal_error(f"Cannot load JSON: {why}")
-            typemap.update(self.process_typemap(jsonmap))
+            field_types.update(jsonmap)
 
         for item in self.args.item:
-            typemap[item.lower()] = http_sfv.Item
+            field_types[item.lower()] = "item"
         for _list in self.args.list:
-            typemap[_list.lower()] = http_sfv.List
+            field_types[_list.lower()] = "list"
         for _dict in self.args.dict:
-            typemap[_dict.lower()] = http_sfv.Dictionary
-        return typemap
-
-    def process_typemap(self, typemap: Dict[str, str]) -> Dict[str, Callable]:
-        try:
-            return {
-                k.lower(): {
-                    "item": http_sfv.Item,
-                    "list": http_sfv.List,
-                    "dict": http_sfv.Dictionary,
-                }[v]
-                for (k, v) in typemap.items()
-            }
-        except KeyError as why:
-            self.fatal_error(f"Cannot load field type mapping: {why}")
-            raise
+            field_types[_dict.lower()] = "dictionary"
+        return field_types
 
     def fatal_error(self, message: str) -> None:
         sys.stderr.write(f"{term.red}FATAL ERROR:{term.normal} {message}\n")

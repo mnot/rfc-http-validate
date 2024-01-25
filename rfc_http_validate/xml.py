@@ -3,7 +3,7 @@ from typing import IO
 from xml import sax
 from xml.sax.handler import ContentHandler
 
-from .validate import RfcHttpValidator
+from rfc_http_validate.validate import RfcHttpValidator
 
 
 def extract_xml(fh: IO, validator: RfcHttpValidator) -> None:
