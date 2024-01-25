@@ -1,9 +1,0 @@
-http_sfv
-typing_extensions; python_version<"3.10"
-pylint>=2.4.4
-mypy>=0.770
-twine>=3.1.1
-blessings
-commonmark
-black
-build

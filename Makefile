@@ -1,50 +1,18 @@
-PROJECT=rfc_http_validate
+PROJECT = rfc_http_validate
 
-
-.PHONY: test
-test: venv
-	echo "Write some tests please."
-
-.PHONY: tidy
-tidy: venv
-	$(VENV)/black $(PROJECT)
-
-.PHONY: lint
-lint: venv
-	PYTHONPATH=$(VENV) $(VENV)/pylint --output-format=colorized $(PROJECT)
-
-.PHONY: typecheck
-typecheck: venv
-	PYTHONPATH=$(VENV) $(VENV)/python -m mypy $(PROJECT)
 
 .PHONY: clean
-clean:
-	find . -d -type d -name __pycache__ -exec rm -rf {} \;
-	rm -rf build dist MANIFEST $(PROJECT).egg-info .venv .mypy_cache *.log
+clean: clean_py
 
-.PHONY: cli
-cli: venv
-	PYTHONPATH=$(VENV) $(VENV)/pip install .
-	PYTHONPATH=$(VENV):. sh
+.PHONY: lint
+lint: lint_py
 
-#############################################################################
-## Distribution
+.PHONY: typecheck
+typecheck: typecheck_py
 
-.PHONY: version
-version: venv
-	$(eval VERSION=$(shell $(VENV)/python -c "import $(PROJECT); print($(PROJECT).__version__)"))
-
-.PHONY: build
-build: clean venv
-	$(VENV)/python -m build
-
-.PHONY: upload
-upload: build test typecheck version
-	git tag $(PROJECT)-$(VERSION)
-	git push
-	git push --tags origin
-	$(VENV)/python -m twine upload dist/*
+.PHONY: tidy
+tidy: tidy_py
 
 
 
-include Makefile.venv
+include Makefile.pyproject

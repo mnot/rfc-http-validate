@@ -1,3 +1,33 @@
+[project]
+name = "rfc-http-validate"
+dynamic = ["version"]
+authors = [
+    {name="Mark Nottingham", email="mnot@mnot.net"}
+]
+description = "DESCRIPTION"
+readme = "README.md"
+requires-python = ">=3.9"
+license = {file = "LICENSE.md"}
+classifiers = [
+    "Operating System :: OS Independent",
+    "Development Status :: 4 - Beta",
+    "License :: OSI Approved :: MIT License"
+]
+dependencies = [
+    "http_sfv",
+    "blessings",
+    "commonmark"
+]
+
+[project.optional-dependencies]
+dev = ["mypy", "black", "pylint", "pytest", "pytest-md", "validate-pyproject", "build"]
+
+[project.urls]
+homepage = "https://github.com/mnot/rfc-http-validate/"
+
+[project.scripts]
+rfc-http-validate = "rfc_http_validate:main"
+
 [build-system]
 requires = [
     "setuptools>=42",
@@ -5,8 +35,19 @@ requires = [
 ]
 build-backend = "setuptools.build_meta"
 
+[tool.setuptools.dynamic]
+version = {attr = "rfc_http_validate.__version__"}
+
+[tool.setuptools.packages.find]
+where = ["."]
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.package-data]
+rfc_http_validate = ["py.typed"]
+
 [tool.mypy]
-python_version = 3.7
 follow_imports = "normal"
 incremental = true
 disallow_untyped_defs = true
@@ -16,10 +57,8 @@ warn_redundant_casts = true
 warn_unused_ignores = true
 warn_return_any = true
 warn_unreachable = true
-strict_optional = false
+strict_optional = true
 show_error_codes = true
-install_types = true
-non_interactive = true
 
 
 [tool.pylint.basic]
@@ -38,7 +77,7 @@ disable = "C0114,C0115,C0116,W0613"
 reports = false
 
 [tool.pylint.variables]
-dummy-variables-rgx = "response_start|response_body|response_done|error|formatter_done|check_done|_"
+dummy-variables-rgx = "_"
 
 [tool.pylint.design]
 max-args=10
