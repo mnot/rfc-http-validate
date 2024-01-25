@@ -3,7 +3,7 @@ import json
 import sys
 from typing import Callable, Dict
 
-from blessings import Terminal  # type: ignore[import]
+from blessings import Terminal  # type: ignore
 import http_sfv
 
 from .retrofit import typemap as base_typemap

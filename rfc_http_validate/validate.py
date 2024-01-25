@@ -24,7 +24,7 @@ class RfcHttpValidator:
     def __init__(self, typemap: Dict[str, Callable], ui: ValidatorUi):
         self.typemap = typemap
         self.ui = ui
-        self.location: Callable[..., str] = None
+        self.location: Callable[..., str]
 
     def validate(self, http_message: str, location: Callable[..., str]) -> None:
         self.location = location
@@ -116,7 +116,7 @@ class RfcHttpValidator:
 
     def combine_headers(self, lines: List[str]) -> Dict[str, str]:
         headers = {}  # type: Dict[str, str]
-        prev_name: str = None
+        prev_name: str = ""
         in_body = False
         for line in lines:
             if len(line.strip()) == 0:

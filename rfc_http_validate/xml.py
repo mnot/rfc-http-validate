@@ -1,5 +1,5 @@
 from os.path import basename
-from typing import Dict, IO
+from typing import IO
 from xml import sax
 from xml.sax.handler import ContentHandler
 
@@ -21,9 +21,9 @@ class XmlHttpExtractor(ContentHandler):
         self.filename = filename
         self.listening = False
         self.content = ""
-        self.type: str = None
+        self.type: str
 
-    def startElement(self, name: str, attrs: Dict[str, str]) -> None:
+    def startElement(self, name: str, attrs: sax.xmlreader.AttributesImpl) -> None:
         if name in ["sourcecode", "artwork"] and "type" in attrs.keys():
             self.listening = True
             self.type = attrs["type"]

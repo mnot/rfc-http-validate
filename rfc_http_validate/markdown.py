@@ -1,17 +1,17 @@
 from os.path import basename
-from typing import Dict, IO
+from typing import IO
 
-import commonmark  # type: ignore[import]
-from commonmark.node import Node  # type: ignore[import]
+import commonmark
+from commonmark.node import Node
 
 from .validate import RfcHttpValidator
 
 
 def extract_md(fh: IO, validator: RfcHttpValidator) -> None:
     parser = commonmark.Parser()
-    doc = parser.parse(fh.read())
+    doc = parser.parse(fh.read())  # type: ignore
     handler = MarkdownHttpExtractor(validator, fh.name)
-    handler.render(doc)
+    handler.render(doc)  # type: ignore
 
 
 class MarkdownHttpExtractor(commonmark.render.renderer.Renderer):
