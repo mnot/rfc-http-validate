@@ -6,7 +6,7 @@ from xml.sax.handler import ContentHandler
 from rfc_http_validate.validate import RfcHttpValidator
 
 
-def extract_xml(fh: IO, validator: RfcHttpValidator) -> None:
+def extract_xml(fh: IO[bytes], validator: RfcHttpValidator) -> None:
     handler = XmlHttpExtractor(validator, fh.name)
     try:
         sax.parse(fh, handler)
