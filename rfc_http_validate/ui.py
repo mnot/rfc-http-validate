@@ -21,13 +21,15 @@ class ValidatorCLI(ValidatorUi):
 
     def run(self) -> None:
         validator = RfcHttpValidator(self.field_types, self)
-        for fh in self.args.file:
-            if fh.name.endswith(".xml"):
-                extract_xml(fh, validator)
-            elif fh.name.endswith(".md"):
-                extract_md(fh, validator)
+        for path in self.args.file:
+            if path.endswith(".xml"):
+                with open(path, "rb") as xml_fh:
+                    extract_xml(xml_fh, validator)
+            elif path.endswith(".md"):
+                with open(path, "r", encoding="utf-8") as md_fh:
+                    extract_md(md_fh, validator)
             else:
-                self.fatal_error(f"Can't determine format of {fh.name}")
+                self.fatal_error(f"Can't determine format of {path}")
         if self.errors > 0:
             sys.exit(1)
 
@@ -55,7 +57,6 @@ class ValidatorCLI(ValidatorUi):
             "-m",
             "--map",
             dest="map",
-            type=argparse.FileType("r"),
             help="JSON file that maps field names to structured types",
         )
         parser.add_argument(
@@ -91,7 +92,6 @@ class ValidatorCLI(ValidatorUi):
         )
         parser.add_argument(
             "file",
-            type=argparse.FileType("r"),
             nargs="+",
             help="an XML file to validate",
         )
@@ -101,7 +101,8 @@ class ValidatorCLI(ValidatorUi):
         field_types = {}
         if self.args.map:
             try:
-                jsonmap = json.load(self.args.map)
+                with open(self.args.map, "r", encoding="utf-8") as fh:
+                    jsonmap = json.load(fh)
             except (IOError, ValueError) as why:
                 self.fatal_error(f"Cannot load JSON: {why}")
             field_types.update(jsonmap)
