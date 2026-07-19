@@ -3,10 +3,10 @@
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
+- [Installation](#installation)
 - [Validating HTTP Messages in Markdown](#validating-http-messages-in-markdown)
 - [Validating HTTP Messages in RFC XML](#validating-http-messages-in-rfc-xml)
 - [Configuring Structured Type Information for Fields](#configuring-structured-type-information-for-fields)
-- [Installation](#installation)
 - [Use with I-D-Template](#use-with-i-d-template)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
@@ -40,6 +40,13 @@ Signature: sig1=:K2qGT5srn2OGbOIDzQ6kYT+ruaycnDAAUpKv+ePFfD0RAxn/1BUe\
     FquQrXRlmYOh+Hx5D9fJkXcXe5tmAg==:
 </sourcecode>
 ~~~
+
+
+## Installation
+
+[pipx](https://pipx.pypa.io/stable/) is recommended:
+
+> pipx install rfc-http-validate
 
 
 ## Validating HTTP Messages in Markdown
@@ -104,13 +111,6 @@ Alternatively, you can collect this information in a JSON file, with the top-lev
 ... and passed to the script like this:
 
 > rfc-http-validate --map sf.json my_draft.xml
-
-
-## Installation
-
-The script requires Python 3, and can be installed with pip:
-
-> pip3 install rfc-http-validate
 
 
 ## Use with I-D-Template
