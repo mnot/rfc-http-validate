@@ -4,7 +4,7 @@ dynamic = ["version"]
 authors = [
     {name="Mark Nottingham", email="mnot@mnot.net"}
 ]
-description = "DESCRIPTION"
+description = "Validate HTTP messages in xml2rfc and kramdown-rfc documents"
 readme = "README.md"
 requires-python = ">=3.10"
 license = "MIT"
