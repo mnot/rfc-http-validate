@@ -30,10 +30,11 @@ class RfcHttpValidator:
 
     def validate(self, http_message: str, location: Callable[..., str]) -> None:
         self.location = location
-        lines = http_message.strip("\n").split("\n")
-        if len(lines) == 0:
+        message = http_message.strip("\n")
+        if not message.strip():
             self.ui.error(self.location(), "Empty http-message")
             return
+        lines = message.split("\n")
         lines = self.combine_8792(lines)
         skip_lines = self.check_start_line(lines[0])
         try:
